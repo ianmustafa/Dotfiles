@@ -8,7 +8,7 @@ name: dockerian
 services:
   traefik:
     container_name: traefik
-    image: traefik:3
+    image: traefik:{{ if eq .chezmoi.hostname "Archian" }}3{{ else }}3.6{{ end }}
     restart: unless-stopped
     ports:
       - 80:80
@@ -22,10 +22,11 @@ services:
       - "host.docker.internal:host-gateway"
     labels:
       - traefik.enable=true
-      - traefik.http.routers.traefik.rule=Host(`t.q`,`traefik.archian.ts`)
+      - traefik.http.routers.traefik.rule=Host(`t.q`,`traefik.{{ .chezmoi.hostname | lower }}.ts`)
       - traefik.http.routers.traefik.entrypoints=web
       - traefik.http.services.traefik.loadbalancer.server.port=8080
 
+{{ if eq .chezmoi.hostname "Archian" }}
   beszel-agent:
     image: henrygd/beszel-agent-nvidia:latest
     container_name: beszel-agent
@@ -71,23 +72,20 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./data/arcane:/app/data
     environment:
-      - APP_ENV=production # Required
-      - PUBLIC_SESSION_SECRET=${ARCANE_SESSION_SECRET} # Generate: openssl rand -base64 32
-      # Optional: Match your host user for permissions
+      - APP_ENV=production
+      - PUBLIC_SESSION_SECRET=${ARCANE_SESSION_SECRET}
       - PUID=1000
       - PGID=1000
-      # Optional: Set if Docker access fails
-      # - DOCKER_GID=998
-      # Optional: For local HTTP testing only
       - PUBLIC_ALLOW_INSECURE_COOKIES=true
     labels:
       - traefik.enable=true
       - traefik.http.routers.arcane.rule=Host(`d.q`,`d.a`,`docker.archian.ts`)
       - traefik.http.routers.arcane.entrypoints=web
+{{ end }}
 
   mariadb:
     container_name: mariadb
-    image: mariadb:11.1
+    image: mariadb:{{ if eq .chezmoi.hostname "Archian" }}11.1{{ else }}10.9{{ end }}
     # user: 1000:1000
     restart: unless-stopped
     command:
@@ -95,14 +93,14 @@ services:
       - --collation-server=utf8mb4_general_ci
       - --bind-address=0.0.0.0
       - --max-connections=500
-    # network_mode: host
     ports:
       - 3306:3306
     volumes:
-      - ./data/mariadb:/var/lib/mysql
+      - ./data/{{ if eq .chezmoi.hostname "Archian" }}mariadb{{ else }}mysql{{ end }}:/var/lib/mysql
     environment:
       MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
 
+{{ if eq .chezmoi.hostname "Archian" }}
   mysql:
     container_name: mysql
     image: mysql:8.0
@@ -112,19 +110,19 @@ services:
       - --collation-server=utf8mb4_general_ci
       - --bind-address=0.0.0.0
       - --max-connections=500
-    # network_mode: host
     ports:
       - 3307:3306
     volumes:
       - ./data/mysql:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+{{ end }}
 
   postgres:
     container_name: postgres
     image: ghcr.io/kavist/postgres-ulid:17
+    {{ if eq .chezmoi.hostname "Thinkian" }}shm_size: 512m{{ end }}
     restart: unless-stopped
-    # network_mode: host
     ports:
       - 5432:5432
     volumes:
@@ -137,7 +135,6 @@ services:
     image: mongo:8.0
     # user: 1000:1000
     restart: unless-stopped
-    # network_mode: host
     ports:
       - 27017:27017
     volumes:
@@ -151,16 +148,15 @@ services:
     image: redis:7.4-alpine
     # user: 1000:1000
     restart: unless-stopped
-    # network_mode: host
     ports:
       - 6379:6379
     volumes:
       - ./data/redis:/data
-    command: redis-server --save 60 1 --loglevel warning
+    command: redis-server --save 60 1 --loglevel warning{{ if eq .chezmoi.hostname "Thinkian" }} --notify-keyspace-events AKE{{ end }}
 
   redis-auth:
     container_name: redis-auth
-    image: redis:7.4-alpine
+    image: redis:{{ if eq .chezmoi.hostname "Archian" }}7.4-alpine{{ else }}7.4.0-alpine{{ end }}
     # user: 1000:1000
     # restart: unless-stopped
     ports:
@@ -173,12 +169,11 @@ services:
 
   keydb:
     container_name: keydb
-    image: eqalpha/keydb
+    image: eqalpha/keydb{{ if eq .chezmoi.hostname "Thinkian" }}:alpine_x86_64_v6.3.4{{ end }}
     # user: 1000:1000
     # restart: unless-stopped
-    # network_mode: host
     ports:
-      - 6381:6379
+      - {{ if eq .chezmoi.hostname "Archian" }}6381{{ else }}6380{{ end }}:6379
     volumes:
       - ./data/keydb:/data
 
@@ -187,9 +182,8 @@ services:
     image: docker.dragonflydb.io/dragonflydb/dragonfly
     # user: 1000:1000
     # restart: unless-stopped
-    # network_mode: host
     ports:
-      - 6382:6379
+      - {{ if eq .chezmoi.hostname "Archian" }}6382{{ else }}6381{{ end }}:6379
     volumes:
       - ./data/dragonfly:/data
 
@@ -207,15 +201,14 @@ services:
     image: confluentinc/cp-kafka:7.4.0
     user: 1000:1000
     # restart: unless-stopped
-    # network_mode: host
     ports:
       - 9092:9092
       - 39092:39092
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT_LAN:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://127.0.0.1:9092,PLAINTEXT_LAN://192.168.100.28:39092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,{{ if eq .chezmoi.hostname "Archian" }}PLAINTEXT_LAN{{ else }}PLAINTEXT_WLAN{{ end }}:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://127.0.0.1:9092,{{ if eq .chezmoi.hostname "Archian" }}PLAINTEXT_LAN{{ else }}PLAINTEXT_WLAN{{ end }}://192.168.100.28:39092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -233,14 +226,13 @@ services:
       - ./config/kafka-ui:/etc/kafkaui
     environment:
       DYNAMIC_CONFIG_ENABLED: "true"
-    # depends_on:
-    #   - kafka
     labels:
       - traefik.enable=true
-      - traefik.http.routers.kafka-ui.rule=Host(`kui.q`, `kafka-ui.archian.ts`)
+      - traefik.http.routers.kafka-ui.rule=Host(`kui.q`,`kafka-ui.{{ .chezmoi.hostname | lower }}.ts`)
       - traefik.http.routers.kafka-ui.entrypoints=web
       - traefik.http.services.kafka-ui.loadbalancer.server.port=8080
 
+{{ if eq .chezmoi.hostname "Archian" }}
   redpanda:
     container_name: redpanda
     image: redpandadata/redpanda:latest
@@ -248,7 +240,7 @@ services:
     # restart: unless-stopped
     ports:
       - 9092:9092
-      - 9644:9644 # admin API
+      - 9644:9644
     command:
       - redpanda
       - start
@@ -288,7 +280,7 @@ services:
             urls: ["http://redpanda:9644"]
     labels:
       - traefik.enable=true
-      - traefik.http.routers.redpanda-console.rule=Host(`rpc.q`, `redpanda-console.archian.ts`)
+      - traefik.http.routers.redpanda-console.rule=Host(`rpc.q`,`redpanda-console.archian.ts`)
       - traefik.http.routers.redpanda-console.entrypoints=web
       - traefik.http.services.redpanda-console.loadbalancer.server.port=8080
 
@@ -306,6 +298,7 @@ services:
       nofile:
         soft: 262144
         hard: 262144
+{{ end }}
 
   minio:
     container_name: minio
@@ -314,8 +307,9 @@ services:
     restart: unless-stopped
     command: server /data --console-address ':9001'
     ports:
-      - 9910:9000
-      - 9911:9001
+      - {{ if eq .chezmoi.hostname "Archian" }}9910:9000
+      - 9911:9001{{ else }}9900:9000
+      - 9901:9001{{ end }}
     volumes:
       - ./data/minio:/data
     environment:
@@ -334,6 +328,7 @@ services:
       - traefik.http.routers.minio-console.entrypoints=web
       - traefik.http.services.minio-console.loadbalancer.server.port=9001
 
+{{ if eq .chezmoi.hostname "Archian" }}
   rustfs:
     container_name: rustfs
     image: rustfs/rustfs:1.0.0-beta.1
@@ -353,6 +348,7 @@ services:
       RUSTFS_CONSOLE_ENABLE: "true"
       RUSTFS_CORS_ALLOWED_ORIGINS: "*"
       RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS: "*"
+{{ end }}
 
   adminer:
     container_name: adminer
@@ -367,9 +363,10 @@ services:
       ADMINER_DESIGN: lucas-sandery
     labels:
       - traefik.enable=true
-      - traefik.http.routers.adminer.rule=Host(`a.q`,`adminer.archian.ts`)
+      - traefik.http.routers.adminer.rule=Host(`a.q`{{ if eq .chezmoi.hostname "Archian" }},`adminer.archian.ts`{{ end }})
       - traefik.http.routers.adminer.entrypoints=web
 
+{{ if eq .chezmoi.hostname "Archian" }}
   metabase:
     container_name: metabase
     image: metabase/metabase:latest
@@ -379,33 +376,35 @@ services:
       - traefik.enable=true
       - traefik.http.routers.metabase.rule=Host(`mb.q`,`metabase.archian.ts`)
       - traefik.http.routers.metabase.entrypoints=web
+{{ end }}
 
   navidrome:
     container_name: navidrome
     image: deluan/navidrome:latest
     # user: 1000:1000
     restart: unless-stopped
-    # network_mode: host
     ports:
       - 4533:4533
     environment:
       ND_SCANSCHEDULE: 10m
     volumes:
       - ./data/navidrome:/data
-      - /media/ian/Glacier/Music/Lossless:/music/Lossless
+{{ if eq .chezmoi.hostname "Archian" }}      - /media/ian/Glacier/Music/Lossless:/music/Lossless
+{{ else }}      - ./volumes/navidrome:/music:ro
+      - /path/to/Music:/path/to/Music:ro
+{{ end }}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.navidrome.rule=Host(`n.q`,`navidrome.archian.ts`)
+      - traefik.http.routers.navidrome.rule=Host(`n.q`,`navidrome.{{ .chezmoi.hostname | lower }}.ts`)
       - traefik.http.routers.navidrome.entrypoints=web
 
+{{ if eq .chezmoi.hostname "Archian" }}
   jellyfin:
     container_name: jellyfin
     image: jellyfin/jellyfin:10.10
     # user: 1000:1000
     restart: unless-stopped
     network_mode: host
-    # ports:
-    #   - 8096:8096
     extra_hosts:
       - "host.docker.internal:host-gateway"
     runtime: nvidia
@@ -418,8 +417,6 @@ services:
       - ./data/jellyfin/config:/config
       - ./data/jellyfin/cache:/cache
       - /media/ian/Iceberg/Music/Lossless/:/media/music
-      # - /media/ian/Glacier/Movies:/media/movies
-      # - /media/ian/Glacier/TV Shows:/media/tv-shows
     labels:
       - traefik.enable=true
       - traefik.http.routers.jellyfin.rule=Host(`j.q`,`j.a`,`jellyfin.a`,`jellyfin.archian.ts`)
@@ -453,10 +450,8 @@ services:
     restart: unless-stopped
     ports:
       - 5030:5030
-      #- 5031:5031
       - 50300:50300
     environment:
-      #SLSKD_REMOTE_CONFIGURATION: true
       SLSKD_SLSK_USERNAME: keplrrr
       SLSKD_SLSK_PASSWORD: ${SLSKD_SLSK_PASSWORD}
     volumes:
@@ -512,6 +507,7 @@ services:
       - traefik.http.routers.open-webui.rule=Host(`c.q`,`c.a`,`ow.q`,`ow.a`,`chat.q`,`chat.a`,`chat.archian.ts`)
       - traefik.http.routers.open-webui.entrypoints=web
       - traefik.http.services.open-webui.loadbalancer.server.port=8080
+{{ end }}
 
   influxdb:
     container_name: influxdb
@@ -532,7 +528,7 @@ services:
       - ./config/influxdb:/etc/influxdb2
     labels:
       - traefik.enable=true
-      - traefik.http.routers.influxdb.rule=Host(`i.q`,`influxdb.archian.ts`)
+      - traefik.http.routers.influxdb.rule=Host(`i.q`,`influxdb.{{ .chezmoi.hostname | lower }}.ts`)
       - traefik.http.routers.influxdb.entrypoints=web
 
   rabbitmq:
@@ -551,12 +547,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+{{ if eq .chezmoi.hostname "Archian" }}
     labels:
       - traefik.enable=true
       - traefik.http.routers.rabbitmq-management.service=rabbitmq-management
       - traefik.http.routers.rabbitmq-management.rule=Host(`urmq.q`)
       - traefik.http.routers.rabbitmq-management.entrypoints=web
       - traefik.http.services.rabbitmq-management.loadbalancer.server.port=15672
+{{ end }}
 
   rabbitmq-tls:
     container_name: rabbitmq-tls
@@ -583,6 +581,7 @@ services:
       - traefik.http.services.rabbitmq-tls-management.loadbalancer.server.port=15671
       - traefik.http.routers.rabbitmq-tls-management.entrypoints=web
 
+{{ if eq .chezmoi.hostname "Archian" }}
   esphome:
     container_name: esphome
     image: esphome/esphome:2025.4
@@ -611,8 +610,6 @@ services:
       - 8006:8006
       - 3389:3389/tcp
       - 3389:3389/udp
-    # volumes:
-    #   - ./windows:/storage
     stop_grace_period: 2m
 
   stirling:
@@ -643,5 +640,14 @@ services:
       - ./data/9router:/data
     labels:
       - traefik.enable=true
-      - traefik.http.routers.stirling.rule=Host(`9r.q`,`9r.a`,`9router.archian.ts`)
-      - traefik.http.routers.stirling.entrypoints=web
+      - traefik.http.routers.9router.rule=Host(`9r.q`,`9r.a`,`9router.archian.ts`)
+      - traefik.http.routers.9router.entrypoints=web
+{{ end }}
+
+{{ if eq .chezmoi.hostname "Thinkian" }}
+  acestream-http-proxy:
+    image: martinbjeldbak/acestream-http-proxy
+    container_name: acestream-http-proxy
+    ports:
+      - 6879:6878
+{{ end }}
