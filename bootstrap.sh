@@ -29,6 +29,18 @@ info "Hostname: $HOSTNAME"
 command -v chezmoi >/dev/null 2>&1 || die "chezmoi not installed. Install via: pacman -S chezmoi"
 command -v chezetc >/dev/null 2>&1 || warn "chezetc not installed. Skipping /etc files. Install via: paru -S chezetc"
 command -v git     >/dev/null 2>&1 || die "git not installed."
+command -v rbw     >/dev/null 2>&1 || die "rbw not installed. Install via: pacman -S rbw"
+
+# ─── rbw (Vaultwarden) ──────────────────────────────────────────────────────
+
+info "Configuring rbw for Vaultwarden ..."
+rbw config set base_url https://v.kupu.dev
+
+if ! rbw unlocked 2>/dev/null; then
+  info "  rbw is locked — please unlock to allow chezmoi to fetch secrets."
+  rbw unlock || die "rbw unlock failed. Run 'rbw unlock' manually then re-run bootstrap.sh"
+fi
+success "rbw unlocked."
 
 # ─── dotfiles (home) ─────────────────────────────────────────────────────────
 
