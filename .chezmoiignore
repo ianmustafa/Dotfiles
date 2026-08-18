@@ -10,7 +10,7 @@ Docker/logs
 Docker/build
 
 # Neovim lazy-lock (changes frequently, machine-specific)
-# .config/nvim/lazy-lock.json
+.config/nvim/lazy-lock.json
 
 # Zsh history
 .zsh_history
