@@ -1,5 +1,6 @@
 # Tmux plugins (managed by tpm, not chezmoi)
 .config/tmux/plugins
+.config/nvim/lazy-lock.json
 
 # Neovim syncthing artifact
 .config/nvim/.stfolder
