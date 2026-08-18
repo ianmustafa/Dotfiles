@@ -1,0 +1,16 @@
+# Tmux plugins (managed by tpm, not chezmoi)
+.config/tmux/plugins
+
+# Neovim syncthing artifact
+.config/nvim/.stfolder
+
+# Docker runtime data
+Docker/data
+Docker/logs
+Docker/build
+
+# Neovim lazy-lock (changes frequently, machine-specific)
+# .config/nvim/lazy-lock.json
+
+# Zsh history
+.zsh_history

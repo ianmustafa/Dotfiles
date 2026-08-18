@@ -1,0 +1,44 @@
+# beszel-agent
+BESZEL_KEY=
+BESZEL_TOKEN=
+
+# arcane
+ARCANE_SESSION_SECRET=   # Generate: openssl rand -base64 32
+
+# mariadb
+MARIADB_ROOT_PASSWORD=
+
+# mysql
+MYSQL_ROOT_PASSWORD=
+
+# postgres
+POSTGRES_PASSWORD=
+
+# mongodb
+MONGO_INITDB_ROOT_PASSWORD=
+
+# clickhouse
+CLICKHOUSE_PASSWORD=
+
+# minio
+MINIO_ROOT_PASSWORD=
+
+# rustfs
+RUSTFS_ACCESS_KEY=
+RUSTFS_SECRET_KEY=
+
+# slskd
+SLSKD_SLSK_PASSWORD=
+
+# influxdb
+DOCKER_INFLUXDB_INIT_PASSWORD=
+DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=
+
+# rabbitmq
+RABBITMQ_DEFAULT_PASS=
+
+# rabbitmq-tls
+RABBITMQ_TLS_DEFAULT_PASS=
+
+# esphome
+ESPHOME_PASSWORD=

@@ -1,0 +1,13 @@
+<schemalist>
+  <enum id="org.freedesktop.appearance.color-scheme">
+    <value nick="no-preference" value="0"/>
+    <value nick="prefer-dark" value="1"/>
+    <value nick="prefer-light" value="2"/>
+  </enum>
+  <schema id="org.freedesktop.appearance" path="/org/freedesktop/appearance/">
+    <key name="color-scheme" enum="org.freedesktop.appearance.color-scheme">
+      <default>'no-preference'</default>
+      <summary>Color scheme preference</summary>
+    </key>
+  </schema>
+</schemalist>

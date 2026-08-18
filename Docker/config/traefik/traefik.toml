@@ -1,0 +1,24 @@
+# Entry points
+[entryPoints]
+[entryPoints.web]
+address = ":80"
+[entryPoints.secure-web]
+address = ":443"
+[entryPoints.mysql]
+address = ":3306"
+[entryPoints.mongodb]
+address = ":27017"
+
+# Enable API in HTTP mode for Dashboard
+[api]
+dashboard = true
+insecure = true
+
+# Providers
+#== Docker
+[providers.docker]
+network = "local"
+exposedByDefault = false
+#== File
+[providers.file]
+directory = "/etc/traefik/providers"

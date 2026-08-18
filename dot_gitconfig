@@ -1,0 +1,23 @@
+[user]
+  name = Ian Mustafa
+  email = mail@ianmustafa.com
+  signingKey = 9AA80F946ED1E834
+
+[includeIf "gitdir:/home/ian/.openclaw/workspace/"]
+  path = ~/.gitconfig-kepi
+
+[commit]
+  gpgSign = true
+
+[tag]
+  gpgSign = true
+
+[push]
+  gpgSign = if-asked
+  followTags = true
+
+[credential]
+  helper = cache --timeout 72000
+
+[init]
+  defaultBranch = main

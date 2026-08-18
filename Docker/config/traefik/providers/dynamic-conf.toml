@@ -1,0 +1,32 @@
+# Custom services
+[http.services]
+#== Stable Diffusion (on host)
+[http.services.stable-diffusion.loadBalancer]
+[[http.services.stable-diffusion.loadBalancer.servers]]
+url = "http://172.17.0.1:7860/"
+#== syncthing (on host)
+[http.services.syncthing.loadBalancer]
+[[http.services.syncthing.loadBalancer.servers]]
+url = "http://172.17.0.1:8384/"
+#== Home Assistant (on VM)
+[http.services.home-assistant.loadBalancer]
+[[http.services.home-assistant.loadBalancer.servers]]
+url = "http://10.1.1.19:8123/"
+
+# Custom routes
+[http.routers]
+#== Stable Diffusion
+[http.routers.stable-diffusion]
+rule = "Host(`sd.q`,`sd.archian.ts`)"
+service = "stable-diffusion"
+entrypoints = "web"
+#== Syncthing
+[http.routers.syncthing]
+rule = "Host(`s.q`,`syncthing.archian.ts`)"
+service = "syncthing"
+entrypoints = "web"
+#== Home Assistant
+[http.routers.home-assistant]
+rule = "Host(`ha.q`,`hassian.ts`)"
+service = "home-assistant"
+entrypoints = "web"

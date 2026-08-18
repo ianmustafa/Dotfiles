@@ -1,0 +1,13 @@
+// ────────────── Startup Applications ──────────────
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Miscellaneous#spawn-sh-at-startup
+
+spawn-sh-at-startup "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP QT_QPA_PLATFORM QT_QPA_PLATFORMTHEME SSH_AUTH_SOCK SSH_ASKPASS SSH_ASKPASS_REQUIRE"
+{{ if eq .chezmoi.hostname "Archian" -}}
+spawn-sh-at-startup "while ! busctl --user status org.gnome.Mutter.ScreenCast >/dev/null 2>&1; do sleep 0.2; done; pkill -f xdg-desktop-portal-gnome"
+{{- end }}
+spawn-at-startup "noctalia"
+spawn-at-startup "kwalletd6"
+spawn-at-startup "ssh-agent" "-D" "-a" "/run/user/1000/ssh-agent"
+{{ if eq .chezmoi.hostname "Thinkian" -}}
+spawn-at-startup "/home/ian/.config/niri/zen-floater.sh"
+{{- end }}

@@ -1,0 +1,12 @@
+niri
+noctalia-shell
+noctalia-qs
+ghostty
+xwayland-satellite
+xdg-desktop-portal-kde
+xdg-desktop-portal
+xdg-desktop-portal-gnome
+xdg-desktop-portal-gtk
+qt6-wayland
+brightnessctl
+wlr-randr

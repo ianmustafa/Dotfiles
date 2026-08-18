@@ -1,0 +1,647 @@
+networks:
+  default:
+    name: local
+    external: true
+
+name: dockerian
+
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:3
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+      - 9990:8080
+    volumes:
+      - ./config/traefik/traefik.toml:/etc/traefik/traefik.toml:ro
+      - ./config/traefik/providers:/etc/traefik/providers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefik.rule=Host(`t.q`,`traefik.archian.ts`)
+      - traefik.http.routers.traefik.entrypoints=web
+      - traefik.http.services.traefik.loadbalancer.server.port=8080
+
+  beszel-agent:
+    image: henrygd/beszel-agent-nvidia:latest
+    container_name: beszel-agent
+    restart: always
+    network_mode: host
+    volumes:
+      - ./data/beszel-agent:/var/lib/beszel-agent
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+      - /media/Vault/.beszel:/extra-filesystems/nvme0n1p2__Vault:ro
+      - /media/Iceberg/.beszel:/extra-filesystems/sda1__Iceberg:ro
+      - /media/Iceshelves/.beszel:/extra-filesystems/sdb1__Iceshelves:ro
+      - /media/BorkyVault/.beszel:/extra-filesystems/sdc1__BorkyVault:ro
+    environment:
+      LISTEN: 45876
+      KEY: "${BESZEL_KEY}"
+      TOKEN: ${BESZEL_TOKEN}
+      HUB_URL: http://100.67.1.1:9900
+    cap_add:
+      - SYS_RAWIO
+      - SYS_ADMIN
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities:
+                - utility
+    devices:
+      - /dev/nvme0:/dev/nvme0
+      - /dev/sda:/dev/sda
+      - /dev/sdb:/dev/sdb
+      - /dev/sdc:/dev/sdc
+
+  arcane:
+    image: ghcr.io/ofkm/arcane:latest
+    container_name: arcane
+    restart: unless-stopped
+    ports:
+      - 9900:3000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/arcane:/app/data
+    environment:
+      - APP_ENV=production # Required
+      - PUBLIC_SESSION_SECRET=${ARCANE_SESSION_SECRET} # Generate: openssl rand -base64 32
+      # Optional: Match your host user for permissions
+      - PUID=1000
+      - PGID=1000
+      # Optional: Set if Docker access fails
+      # - DOCKER_GID=998
+      # Optional: For local HTTP testing only
+      - PUBLIC_ALLOW_INSECURE_COOKIES=true
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.arcane.rule=Host(`d.q`,`d.a`,`docker.archian.ts`)
+      - traefik.http.routers.arcane.entrypoints=web
+
+  mariadb:
+    container_name: mariadb
+    image: mariadb:11.1
+    # user: 1000:1000
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
+      - --bind-address=0.0.0.0
+      - --max-connections=500
+    # network_mode: host
+    ports:
+      - 3306:3306
+    volumes:
+      - ./data/mariadb:/var/lib/mysql
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
+      - --bind-address=0.0.0.0
+      - --max-connections=500
+    # network_mode: host
+    ports:
+      - 3307:3306
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+  postgres:
+    container_name: postgres
+    image: ghcr.io/kavist/postgres-ulid:17
+    restart: unless-stopped
+    # network_mode: host
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/17/docker
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+  mongodb:
+    container_name: mongodb
+    image: mongo:8.0
+    # user: 1000:1000
+    restart: unless-stopped
+    # network_mode: host
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data/mongodb:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+
+  redis:
+    container_name: redis
+    image: redis:7.4-alpine
+    # user: 1000:1000
+    restart: unless-stopped
+    # network_mode: host
+    ports:
+      - 6379:6379
+    volumes:
+      - ./data/redis:/data
+    command: redis-server --save 60 1 --loglevel warning
+
+  redis-auth:
+    container_name: redis-auth
+    image: redis:7.4-alpine
+    # user: 1000:1000
+    # restart: unless-stopped
+    ports:
+      - 9880:8001
+      - 6380:6379
+    volumes:
+      - ./data/redis-auth:/data
+      - ./config/redis-auth:/usr/local/etc/redis
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  keydb:
+    container_name: keydb
+    image: eqalpha/keydb
+    # user: 1000:1000
+    # restart: unless-stopped
+    # network_mode: host
+    ports:
+      - 6381:6379
+    volumes:
+      - ./data/keydb:/data
+
+  dragonfly:
+    container_name: dragonfly
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    # user: 1000:1000
+    # restart: unless-stopped
+    # network_mode: host
+    ports:
+      - 6382:6379
+    volumes:
+      - ./data/dragonfly:/data
+
+  zookeeper:
+    container_name: zookeeper
+    image: confluentinc/cp-zookeeper:7.4.0
+    user: 1000:1000
+    # restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    container_name: kafka
+    image: confluentinc/cp-kafka:7.4.0
+    user: 1000:1000
+    # restart: unless-stopped
+    # network_mode: host
+    ports:
+      - 9092:9092
+      - 39092:39092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT_LAN:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://127.0.0.1:9092,PLAINTEXT_LAN://192.168.100.28:39092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    user: 1000:1000
+    # restart: unless-stopped
+    ports:
+      - 9960:8080
+    volumes:
+      - ./config/kafka-ui:/etc/kafkaui
+    environment:
+      DYNAMIC_CONFIG_ENABLED: "true"
+    # depends_on:
+    #   - kafka
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.kafka-ui.rule=Host(`kui.q`, `kafka-ui.archian.ts`)
+      - traefik.http.routers.kafka-ui.entrypoints=web
+      - traefik.http.services.kafka-ui.loadbalancer.server.port=8080
+
+  redpanda:
+    container_name: redpanda
+    image: redpandadata/redpanda:latest
+    # user: 1000:1000
+    # restart: unless-stopped
+    ports:
+      - 9092:9092
+      - 9644:9644 # admin API
+    command:
+      - redpanda
+      - start
+      - --kafka-addr=HOST://0.0.0.0:9092,DOCKER://0.0.0.0:29092
+      - --advertise-kafka-addr=HOST://127.0.0.1:9092,DOCKER://redpanda:29092
+      - --pandaproxy-addr=HOST://0.0.0.0:8082,DOCKER://0.0.0.0:28082
+      - --advertise-pandaproxy-addr=HOST://127.0.0.1:8082,DOCKER://redpanda:28082
+      - --schema-registry-addr=HOST://0.0.0.0:8081,DOCKER://0.0.0.0:28081
+      - --rpc-addr=0.0.0.0:33145
+      - --advertise-rpc-addr=redpanda:33145
+      - --mode=dev-container
+      - --smp=1
+      - --default-log-level=info
+    volumes:
+      - ./data/redpanda:/var/lib/redpanda/data
+
+  redpanda-console:
+    container_name: redpanda-console
+    image: redpandadata/console:latest
+    depends_on:
+      - redpanda
+    ports:
+      - 9961:8080
+    entrypoint: /bin/sh
+    command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml; /app/console'
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda:29092"]
+        schemaRegistry:
+          enabled: true
+          urls: ["http://redpanda:28081"]
+        redpanda:
+          adminApi:
+            enabled: true
+            urls: ["http://redpanda:9644"]
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.redpanda-console.rule=Host(`rpc.q`, `redpanda-console.archian.ts`)
+      - traefik.http.routers.redpanda-console.entrypoints=web
+      - traefik.http.services.redpanda-console.loadbalancer.server.port=8080
+
+  clickhouse:
+    container_name: clickhouse
+    image: clickhouse/clickhouse-server
+    ports:
+      - 8123:8123
+    volumes:
+      - ./data/clickhouse:/var/lib/clickhouse
+    environment:
+      CLICKHOUSE_USER: local
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  minio:
+    container_name: minio
+    image: minio/minio:latest
+    # user: 1000:1000
+    restart: unless-stopped
+    command: server /data --console-address ':9001'
+    ports:
+      - 9910:9000
+      - 9911:9001
+    volumes:
+      - ./data/minio:/data
+    environment:
+      MINIO_ROOT_USER: local
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_SERVER_URL: http://m.q
+      MINIO_BROWSER_REDIRECT_URL: http://mc.q
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.minio-service.service=minio-service
+      - traefik.http.routers.minio-service.rule=Host(`m.q`)
+      - traefik.http.routers.minio-service.entrypoints=web
+      - traefik.http.services.minio-service.loadbalancer.server.port=9000
+      - traefik.http.routers.minio-console.service=minio-console
+      - traefik.http.routers.minio-console.rule=Host(`mc.q`)
+      - traefik.http.routers.minio-console.entrypoints=web
+      - traefik.http.services.minio-console.loadbalancer.server.port=9001
+
+  rustfs:
+    container_name: rustfs
+    image: rustfs/rustfs:1.0.0-beta.1
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - 9920:9000
+      - 9921:9001
+    volumes:
+      - ./data/rustfs:/data
+    environment:
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
+      RUSTFS_ADDRESS: 0.0.0.0:9000
+      RUSTFS_CONSOLE_ADDRESS: 0.0.0.0:9001
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_CORS_ALLOWED_ORIGINS: "*"
+      RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS: "*"
+
+  adminer:
+    container_name: adminer
+    image: adminer:4
+    # user: 1000:1000
+    restart: unless-stopped
+    ports:
+      - 9970:8080
+    links:
+      - mariadb:db
+    environment:
+      ADMINER_DESIGN: lucas-sandery
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.adminer.rule=Host(`a.q`,`adminer.archian.ts`)
+      - traefik.http.routers.adminer.entrypoints=web
+
+  metabase:
+    container_name: metabase
+    image: metabase/metabase:latest
+    ports:
+      - 9930:3000
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.metabase.rule=Host(`mb.q`,`metabase.archian.ts`)
+      - traefik.http.routers.metabase.entrypoints=web
+
+  navidrome:
+    container_name: navidrome
+    image: deluan/navidrome:latest
+    # user: 1000:1000
+    restart: unless-stopped
+    # network_mode: host
+    ports:
+      - 4533:4533
+    environment:
+      ND_SCANSCHEDULE: 10m
+    volumes:
+      - ./data/navidrome:/data
+      - /media/ian/Glacier/Music/Lossless:/music/Lossless
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.navidrome.rule=Host(`n.q`,`navidrome.archian.ts`)
+      - traefik.http.routers.navidrome.entrypoints=web
+
+  jellyfin:
+    container_name: jellyfin
+    image: jellyfin/jellyfin:10.10
+    # user: 1000:1000
+    restart: unless-stopped
+    network_mode: host
+    # ports:
+    #   - 8096:8096
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    volumes:
+      - ./data/jellyfin/config:/config
+      - ./data/jellyfin/cache:/cache
+      - /media/ian/Iceberg/Music/Lossless/:/media/music
+      # - /media/ian/Glacier/Movies:/media/movies
+      # - /media/ian/Glacier/TV Shows:/media/tv-shows
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.jellyfin.rule=Host(`j.q`,`j.a`,`jellyfin.a`,`jellyfin.archian.ts`)
+      - traefik.http.routers.jellyfin.entrypoints=web
+      - traefik.http.services.jellyfin.loadbalancer.server.port=8096
+
+  srs:
+    image: ossrs/srs:4
+    container_name: srs
+    restart: unless-stopped
+    command: "./objs/srs -c ./conf/stream.conf"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.srs-stream.rule=Host(`srs.q`)
+      - traefik.http.routers.srs-stream.entrypoints=web
+      - traefik.http.services.srs-stream.loadbalancer.server.port=8080
+      - traefik.tcp.routers.srs-ingest.rule=HostSNI(`i.srs.q`)
+      - traefik.tcp.routers.srs-ingest.entrypoints=rtmp
+      - traefik.tcp.services.srs-ingest.loadbalancer.server.port=1935
+    ports:
+      - 1935:1935
+      - 1985:1985
+      - 8880:8080
+    volumes:
+      - ./data/srs/stream.conf:/usr/local/srs/conf/stream.conf:ro
+
+  slskd:
+    image: slskd/slskd
+    container_name: slskd
+    user: 1000:1000
+    restart: unless-stopped
+    ports:
+      - 5030:5030
+      #- 5031:5031
+      - 50300:50300
+    environment:
+      #SLSKD_REMOTE_CONFIGURATION: true
+      SLSKD_SLSK_USERNAME: keplrrr
+      SLSKD_SLSK_PASSWORD: ${SLSKD_SLSK_PASSWORD}
+    volumes:
+      - ./data/slskd:/app
+      - /media/ian/Iceberg/Music/Soulseek:/app/downloads
+      - /media/ian/Iceberg/Music/Lossless:/shares/music
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.slskd.rule=Host(`slskd.q`,`slskd.archian.ts`)
+      - traefik.http.routers.slskd.entrypoints=web
+      - traefik.http.services.slskd.loadbalancer.server.port=5030
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    pull_policy: always
+    restart: unless-stopped
+    tty: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities:
+                - gpu
+    volumes:
+      - ./data/ollama:/root/.ollama
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.ollama.rule=Host(`o.q`,`o.a`,`ollama.a`,`ollama.archian.ts`)
+      - traefik.http.routers.ollama.entrypoints=web
+      - traefik.http.services.ollama.loadbalancer.server.port=11434
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    depends_on:
+      - ollama
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - 9890:8080
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+    volumes:
+      - ./data/open-webui:/app/backend/data
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.open-webui.rule=Host(`c.q`,`c.a`,`ow.q`,`ow.a`,`chat.q`,`chat.a`,`chat.archian.ts`)
+      - traefik.http.routers.open-webui.entrypoints=web
+      - traefik.http.services.open-webui.loadbalancer.server.port=8080
+
+  influxdb:
+    container_name: influxdb
+    image: influxdb:2.7-alpine
+    # user: 1000:1000
+    restart: unless-stopped
+    ports:
+      - 8086:8086
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: root
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${DOCKER_INFLUXDB_INIT_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ORG: local
+      DOCKER_INFLUXDB_INIT_BUCKET: influx
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}
+    volumes:
+      - ./data/influxdb:/var/lib/influxdb2
+      - ./config/influxdb:/etc/influxdb2
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.influxdb.rule=Host(`i.q`,`influxdb.archian.ts`)
+      - traefik.http.routers.influxdb.entrypoints=web
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:4.0-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: local
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - ./data/rabbitmq:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.rabbitmq-management.service=rabbitmq-management
+      - traefik.http.routers.rabbitmq-management.rule=Host(`urmq.q`)
+      - traefik.http.routers.rabbitmq-management.entrypoints=web
+      - traefik.http.services.rabbitmq-management.loadbalancer.server.port=15672
+
+  rabbitmq-tls:
+    container_name: rabbitmq-tls
+    image: rabbitmq:4.0-management-alpine
+    ports:
+      - 5671:5671
+      - 15671:15671
+    environment:
+      RABBITMQ_DEFAULT_USER: local
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_TLS_DEFAULT_PASS}
+    volumes:
+      - ./config/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./certs/rabbitmq-tls:/etc/rabbitmq/certs:ro
+      - ./data/rabbitmq-tls:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.rabbitmq-tls-management.service=rabbitmq-tls-management
+      - traefik.http.routers.rabbitmq-tls-management.rule=Host(`rmq.q`)
+      - traefik.http.services.rabbitmq-tls-management.loadbalancer.server.port=15671
+      - traefik.http.routers.rabbitmq-tls-management.entrypoints=web
+
+  esphome:
+    container_name: esphome
+    image: esphome/esphome:2025.4
+    volumes:
+      - ./config/esphome:/config
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    environment:
+      - USERNAME=ian
+      - PASSWORD=${ESPHOME_PASSWORD}
+
+  windows:
+    image: dockurr/windows
+    container_name: windows
+    environment:
+      VERSION: "tiny10"
+      RAM_SIZE: "8G"
+    devices:
+      - /dev/kvm
+      - /dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - 8006:8006
+      - 3389:3389/tcp
+      - 3389:3389/udp
+    # volumes:
+    #   - ./windows:/storage
+    stop_grace_period: 2m
+
+  stirling:
+    image: docker.stirlingpdf.com/stirlingtools/stirling-pdf:latest
+    container_name: stirling
+    ports:
+      - 9870:8080
+    volumes:
+      - ./config/stirling/extraConfigs:/configs
+      - ./data/stirling/trainingData:/usr/share/tessdata
+      - ./data/stirling/customFiles:/customFiles/
+      - ./data/stirling/pipeline:/pipeline/
+      - ./logs/stirling:/logs/
+    environment:
+      - DISABLE_ADDITIONAL_FEATURES=false
+      - LANGS=en_US,id_ID,en_GB
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.stirling.rule=Host(`st.q`,`st.a`,`stirling.archian.ts`)
+      - traefik.http.routers.stirling.entrypoints=web
+
+  9router:
+    image: decolua/9router:latest
+    container_name: 9router
+    ports:
+      - 20128:20128
+    volumes:
+      - ./data/9router:/data
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.stirling.rule=Host(`9r.q`,`9r.a`,`9router.archian.ts`)
+      - traefik.http.routers.stirling.entrypoints=web

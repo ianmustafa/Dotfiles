@@ -1,0 +1,13 @@
+[directory]
+truncate_to_repo = false
+
+[package]
+disabled = true
+
+[username]
+format = "[$user]($style) at "
+
+[hostname]
+format = "[$hostname]($style) in "
+style = "bold blue"
+

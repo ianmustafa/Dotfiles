@@ -1,0 +1,141 @@
+    window-rule {
+        geometry-corner-radius 8 // Set every window radius to 20
+        clip-to-geometry true
+    }
+
+     // if you use steam you will probably like these
+    window-rule {
+        match app-id="steam"
+        exclude title=r#"^[Ss]team$"#
+        open-floating true
+    }
+
+    window-rule {
+        match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
+        default-floating-position x=10 y=10 relative-to="bottom-right"
+        open-focused false
+    }
+
+    // Noctalia v5 settings window
+    window-rule {
+        match app-id="dev.noctalia.Noctalia"
+        open-floating true
+        default-column-width { fixed 1080; }
+        default-window-height { fixed 920; }
+    }
+
+    layer-rule {
+        match namespace="^noctalia-wallpaper*"
+        place-within-backdrop true
+    }
+
+    // zen browser
+    window-rule {
+        match app-id="zen"
+        draw-border-with-background false
+        clip-to-geometry true
+    }
+    window-rule {
+        match app-id="zen" title="^Picture-in-Picture$"
+	      open-floating true
+        geometry-corner-radius 4
+        default-floating-position x=32 y=32 relative-to="bottom-right"
+	      default-column-width { fixed 854; }
+	      default-window-height { fixed 480; }
+        min-width 640
+        max-width 1280
+        min-height 360
+        max-height 720
+    }
+    window-rule {
+        match app-id="zen" title="^Login.+Google"
+	      open-floating true
+        default-floating-position x=0 y=200 relative-to="top"
+	      default-column-width { fixed 640; }
+	      default-window-height { fixed 640; }
+    }
+    window-rule {
+        match app-id="zen" title="^PayPal Checkout"
+	      open-floating true
+        default-floating-position x=0 y=200 relative-to="top"
+	      default-column-width { fixed 640; }
+	      default-window-height { fixed 640; }
+    }
+
+    // alacritty blur window
+    window-rule {
+        match app-id="Alacritty"
+
+	// background-effect {
+        //     blur true
+        // }
+    }
+
+    // alacritty blur window
+    window-rule {
+        match app-id="com.mitchellh.ghostty"
+
+	// background-effect {
+        //     blur true
+        // }
+    }
+
+    //--------- Floating window ---------
+    // Ente Auth
+    window-rule {
+        match app-id="io.ente.auth"
+        open-floating true
+        default-floating-position x=0 y=32 relative-to="top"
+        default-column-width { fixed 800; }
+        default-window-height { fixed 960; }
+    }
+    // Thunar: Rename
+    window-rule {
+        match app-id="Thunar" title="^Rename "
+        open-floating true
+        default-floating-position x=0 y=200 relative-to="top"
+        default-column-width { fixed 320; }
+        default-window-height { fixed 100; }
+    }
+    // Xarchiver: Extract to
+    window-rule {
+        match app-id="xarchiver" title="^Extract files"
+        open-floating true
+        default-floating-position x=0 y=200 relative-to="top"
+        default-column-width { fixed 400; }
+        default-window-height { fixed 400; }
+    }
+    window-rule {
+        match app-id="xarchiver" title="^Create a new archive"
+        open-floating true
+        default-floating-position x=0 y=160 relative-to="top"
+        default-column-width { fixed 800; }
+        default-window-height { fixed 640; }
+    }
+
+    // ZapZap
+    window-rule {
+        match app-id="com.rtosta.zapzap"
+        default-column-width { fixed 1024; }
+    }
+    // Telegram Desktop
+    window-rule {
+        match app-id="org.telegram.desktop"
+        default-column-width { fixed 1024; }
+    }
+
+    // DBeaver splash
+    window-rule {
+        match app-id="java" title="^[Dd][Bb]eaver"
+        open-floating true
+        default-floating-position x=980 y=350 relative-to="top-left"
+        default-column-width { fixed 600; }
+        default-window-height { fixed 300; }
+        geometry-corner-radius 2
+    }
+
+    // DBeaver main app
+    window-rule {
+        match app-id="DBeaver"
+        default-column-width { fixed 2048; }
+    }

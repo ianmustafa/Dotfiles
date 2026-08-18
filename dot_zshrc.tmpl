@@ -1,0 +1,187 @@
+# vim: set ft=zsh:
+{{- /* .zshrc.tmpl - managed by chezmoi */ -}}
+
+####################################
+# Important environment variables  #
+####################################
+
+# Remove duplicate entries from $PATH
+typeset -U path
+
+# Increase limit number of open files
+ulimit -Sn 2048
+
+# Helper to add to $PATH only if not already there
+path_add() {
+  local dir="$1"
+  local mode="${2:-prepend}"
+  [[ -d "$dir" ]] || return
+  case ":$PATH:" in
+    *":$dir:"*) return ;;
+  esac
+  if [[ "$mode" == "append" ]]; then
+    path+=("$dir")
+  else
+    path=("$dir" $path)
+  fi
+}
+
+path_add "$HOME/.local/bin"
+
+# Defaults
+export EDITOR='nvim'
+export SYSTEMD_EDITOR='nvim'
+export TERMINAL=ghostty
+export CHROME_EXECUTABLE="/usr/bin/helium-browser"
+
+####################################
+# Zinit                            #
+####################################
+
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+[ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
+[ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+source "${ZINIT_HOME}/zinit.zsh"
+
+# Oh My Zsh libraries
+zinit for \
+  OMZL::compfix.zsh \
+  OMZL::completion.zsh \
+  OMZL::directories.zsh \
+  OMZL::functions.zsh \
+  OMZL::git.zsh \
+  OMZL::history.zsh \
+  OMZL::key-bindings.zsh \
+  OMZL::misc.zsh \
+  OMZL::theme-and-appearance.zsh
+
+# Oh My Zsh plugins
+zinit wait lucid for \
+  OMZP::archlinux \
+  OMZP::colored-man-pages \
+  OMZP::composer \
+  OMZP::git \
+  OMZP::laravel \
+  OMZP::sudo
+
+# Completion, syntax highlighting, autosuggestions
+zinit wait lucid for \
+  atinit"zicompinit; zicdreplay" \
+  zdharma-continuum/fast-syntax-highlighting \
+  atload"_zsh_autosuggest_start" \
+  zsh-users/zsh-autosuggestions \
+  blockf atpull'zinit creinstall -q .' \
+  zsh-users/zsh-completions
+
+# Oh My Posh
+zinit ice as"program" from"gh-r" mv"posh* -> oh-my-posh" \
+  atclone"chmod +x oh-my-posh" atpull"%atclone" \
+  atload'eval "$(oh-my-posh init zsh --config ~/.poshthemes/ian.omp.yaml)"'
+zinit light JanDeDobbeleer/oh-my-posh
+
+# Direnv
+zinit light-mode \
+  from"gh-r" \
+  as"program" \
+  mv"direnv* -> direnv" \
+  atclone'./direnv hook zsh > zhook.zsh' \
+  atpull'%atclone' \
+  pick"direnv" \
+  src"zhook.zsh" \
+  for direnv/direnv
+
+# Custom plugins (managed by chezmoi)
+zinit wait lucid for \
+  ~/.config/zsh/plugins/ian-base \
+  ~/.config/zsh/plugins/ian-carbon \
+  ~/.config/zsh/plugins/ian-devtools \
+  ~/.config/zsh/plugins/ian-docker \
+  ~/.config/zsh/plugins/ian-git \
+  ~/.config/zsh/plugins/ian-imagemagick
+
+####################################
+# Language & runtime managers      #
+####################################
+
+# Go
+path_add "$(go env GOBIN)" append
+path_add "$(go env GOPATH)/bin" append
+
+# Node
+{{ if eq .chezmoi.hostname "Archian" -}}
+source /usr/share/nvm/init-nvm.sh
+{{- else if eq .chezmoi.hostname "Thinkian" -}}
+path_add "$HOME/.nodenv/bin"
+eval "$(nodenv init -)"
+FNM_PATH="$HOME/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  path_add "$FNM_PATH"
+  eval "$(fnm env)"
+fi
+{{- end }}
+
+# Rust (Thinkian only)
+{{ if eq .chezmoi.hostname "Thinkian" -}}
+path_add "$HOME/.cargo/bin"
+[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
+{{- end }}
+
+# Flutter / Android (shared config)
+export ANDROID_HOME="$HOME/Android"
+path_add "$HOME/.flutter/bin" append
+path_add "$HOME/fvm/bin" append
+path_add "$ANDROID_HOME/cmdline-tools/latest/bin" append
+path_add "$ANDROID_HOME/platform-tools" append
+
+####################################
+# FZF                              #
+####################################
+
+eval "$(fzf --zsh)"
+
+show_file_or_dir_preview="if [ -d {} ]; then eza --tree --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi"
+
+export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
+export FZF_CUSTOM_SHOW_PREVIEW="$show_file_or_dir_preview"
+export FZF_CTRL_T_OPTS="--preview '$show_file_or_dir_preview'"
+export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
+
+_fzf_compgen_path() {
+  fd --hidden --exclude .git . "$1"
+}
+
+_fzf_compgen_dir() {
+  fd --type=d --hidden --exclude .git . "$1"
+}
+
+_fzf_comprun() {
+  local command=$1
+  shift
+  case "$command" in
+    cd)           fzf --preview 'eza --tree --color=always {} | head -200' "$@" ;;
+    export|unset) fzf --preview "eval 'echo \${}'"                         "$@" ;;
+    ssh)          fzf --preview 'dig {}'                                   "$@" ;;
+    *)            fzf --preview "$FZF_CUSTOM_SHOW_PREVIEW"                 "$@" ;;
+  esac
+}
+
+####################################
+# Shell tools                      #
+####################################
+
+eval "$(zoxide init zsh --cmd cd)"
+eval "$(thefuck --alias)"
+
+####################################
+# App completions & paths          #
+####################################
+
+{{ if eq .chezmoi.hostname "Archian" -}}
+[ -f "$HOME/.openclaw/completions/openclaw.zsh" ] && source "$HOME/.openclaw/completions/openclaw.zsh"
+{{- end }}
+path_add "$HOME/.opencode/bin"
+
+# Remove duplicate entries from $PATH (final pass)
+typeset -U path
