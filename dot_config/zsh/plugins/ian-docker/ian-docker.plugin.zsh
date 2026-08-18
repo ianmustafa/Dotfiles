@@ -28,7 +28,7 @@ alias dcomlogs="dcomll"
 alias dcomlf="dcomll -f"
 
 # System-wide Docker Compose
-alias dcf="docker compose -f $HOME/Docker/docker-compose.yaml"
+alias dcf="docker compose -f $HOME/Docker/compose.yaml"
 alias dcfup="dcf up"
 alias dcfupd="dcfup -d"
 alias dcfdo="dcf down"
