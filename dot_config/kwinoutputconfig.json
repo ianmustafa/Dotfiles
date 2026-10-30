@@ -2,9 +2,15 @@
     {
         "data": [
             {
+                "abmLevel": 0,
                 "allowDdcCi": false,
                 "allowSdrSoftwareBrightness": true,
                 "autoBrightnessCurve": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
                     0,
                     0,
                     0,
@@ -18,14 +24,19 @@
                 "colorPowerTradeoff": "PreferEfficiency",
                 "colorProfileSource": "sRGB",
                 "connectorName": "HDMI-A-1",
+                "customModes": [
+                ],
                 "detectedDdcCi": true,
                 "edidHash": "92618132a0b6dd9bf6cd8489987a092e",
                 "edidIdentifier": "GSM 23025 97611 1 2017 0",
                 "edrPolicy": "always",
+                "hdrColorProfileSource": "EDID",
+                "hdrIccProfilePath": "",
                 "highDynamicRange": false,
                 "iccProfilePath": "",
                 "maxBitsPerColor": 0,
                 "mode": {
+                    "flags": 0,
                     "height": 1080,
                     "refreshRate": 60000,
                     "width": 2560

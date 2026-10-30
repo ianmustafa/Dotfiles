@@ -121,7 +121,7 @@ services:
   postgres:
     container_name: postgres
     image: ghcr.io/kavist/postgres-ulid:17
-    {{ if eq .chezmoi.hostname "Thinkian" }}shm_size: 512m{{ end }}
+    {{ if or (eq .chezmoi.hostname "Thinkian") (eq .chezmoi.hostname "Omenian") }}shm_size: 512m{{ end }}
     restart: unless-stopped
     ports:
       - 5432:5432
@@ -152,7 +152,7 @@ services:
       - 6379:6379
     volumes:
       - ./data/redis:/data
-    command: redis-server --save 60 1 --loglevel warning{{ if eq .chezmoi.hostname "Thinkian" }} --notify-keyspace-events AKE{{ end }}
+    command: redis-server --save 60 1 --loglevel warning{{ if or (eq .chezmoi.hostname "Thinkian") (eq .chezmoi.hostname "Omenian") }} --notify-keyspace-events AKE{{ end }}
 
   redis-auth:
     container_name: redis-auth
@@ -169,7 +169,7 @@ services:
 
   keydb:
     container_name: keydb
-    image: eqalpha/keydb{{ if eq .chezmoi.hostname "Thinkian" }}:alpine_x86_64_v6.3.4{{ end }}
+    image: eqalpha/keydb{{ if or (eq .chezmoi.hostname "Thinkian") (eq .chezmoi.hostname "Omenian") }}:alpine_x86_64_v6.3.4{{ end }}
     # user: 1000:1000
     # restart: unless-stopped
     ports:
@@ -644,7 +644,7 @@ services:
       - traefik.http.routers.9router.entrypoints=web
 {{ end }}
 
-{{ if eq .chezmoi.hostname "Thinkian" }}
+{{ if or (eq .chezmoi.hostname "Thinkian") (eq .chezmoi.hostname "Omenian") }}
   acestream-http-proxy:
     image: martinbjeldbak/acestream-http-proxy
     container_name: acestream-http-proxy

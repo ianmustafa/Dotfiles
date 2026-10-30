@@ -8,3 +8,11 @@ include "./cfg/rules.kdl"
 include "./cfg/misc.kdl"
 include "./cfg/noctalia.kdl"
 
+
+binds {
+    // >>> jcode launch hotkeys (managed) >>>
+    Super+Semicolon hotkey-overlay-title="jcode: home" { spawn "sh" "-c" "if [ -d '/home/ian' ]; then cd '/home/ian'; else cd \"$HOME\"; fi; exec 'ghostty' '/home/ian/.jcode/builds/versions/0.81.5/jcode-linux-x86_64.bin' --spawn-hotkey 'cmd+;'"; }
+    Super+Apostrophe hotkey-overlay-title="jcode: last project" { spawn "sh" "-c" "if [ -d '/home/ian' ]; then cd '/home/ian'; else cd \"$HOME\"; fi; exec 'ghostty' '/home/ian/.jcode/builds/versions/0.81.5/jcode-linux-x86_64.bin' --spawn-hotkey 'cmd+'\\'''"; }
+    Super+Shift+Apostrophe hotkey-overlay-title="jcode: self-dev (self-dev)" { spawn "sh" "-c" "if [ -d '/home/ian' ]; then cd '/home/ian'; else cd \"$HOME\"; fi; exec 'ghostty' '/home/ian/.jcode/builds/versions/0.81.5/jcode-linux-x86_64.bin' --spawn-hotkey 'cmd+shift+'\\''' self-dev"; }
+    // <<< jcode launch hotkeys (managed) <<<
+}

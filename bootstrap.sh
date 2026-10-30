@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# bootstrap.sh — Dotfiles setup for Archian / Thinkian
+# bootstrap.sh — Dotfiles setup for Archian / Thinkian / Omenian
 # Usage: bash bootstrap.sh
 # Repos:
-#   dotfiles         → https://github.com/kepitian/dotfiles  (chezmoi, home files)
-#   dotfiles-etc     → https://github.com/kepitian/dotfiles-etc  (chezetc, /etc files)
-#   dotfiles-private → https://git.kupu.dev/kepitian/dotfiles-private  (chezmoi-private, secrets)
+#   dotfiles         → git@git.kupu.dev:ian/dotfiles.git (chezmoi, home files)
+#   dotfiles-etc     → git@git.kupu.dev:ian/dotfiles-etc.git (chezetc, /etc files)
+#   dotfiles-private → git@git.kupu.dev:ian/dotfiles-private.git (chezmoi-private, secrets)
 
 set -euo pipefail
 
@@ -13,9 +13,9 @@ CHEZMOI_SRC="$HOME/.local/share/chezmoi"
 CHEZETC_SRC="$HOME/.local/share/chezetc"
 CHEZMOI_PRIVATE_SRC="$HOME/.local/share/chezmoi-private"
 
-DOTFILES_REPO="git@github.com:kepitian/dotfiles.git"
-DOTFILES_ETC_REPO="git@github.com:kepitian/dotfiles-etc.git"
-DOTFILES_PRIVATE_REPO="git@git.kupu.dev:kepitian/dotfiles-private.git"
+DOTFILES_REPO="git@git.kupu.dev:ian/dotfiles.git"
+DOTFILES_ETC_REPO="git@git.kupu.dev:ian/dotfiles-etc.git"
+DOTFILES_PRIVATE_REPO="git@git.kupu.dev:ian/dotfiles-private.git"
 
 info()    { echo "[INFO] $*"; }
 success() { echo "[OK]   $*"; }
@@ -30,6 +30,10 @@ command -v chezmoi >/dev/null 2>&1 || die "chezmoi not installed. Install via: p
 command -v chezetc >/dev/null 2>&1 || warn "chezetc not installed. Skipping /etc files. Install via: paru -S chezetc"
 command -v git     >/dev/null 2>&1 || die "git not installed."
 command -v rbw     >/dev/null 2>&1 || die "rbw not installed. Install via: pacman -S rbw"
+command -v go      >/dev/null 2>&1 || die "Go is required. Install via: pacman -S go"
+command -v nodenv  >/dev/null 2>&1 || die "Nodenv is required. Install via: paru -S nodenv"
+command -v fzf     >/dev/null 2>&1 || die "FZF is required. Install via: pacman -S fzf"
+command -v zoxide  >/dev/null 2>&1 || die "Zoxide is required. Install via: pacman -S zoxide"
 
 # ─── rbw (Vaultwarden) ──────────────────────────────────────────────────────
 

@@ -28,7 +28,7 @@ Additional packages not in `packages.txt` but required by the config:
 ---
 
 ## 🚀 Quick Start
-- **Login:** Select **Niri** from your display manager (SDDM/GDM).
+- **Login:** Select **Niri** from SDDM.
 - **Terminal:** `Mod + Return` launches **Ghostty**.
 - **App Launcher:** `Mod + Space` opens the Noctalia launcher.
 - **Session Menu:** `Mod + Shift + Q` for power/logout options.
@@ -36,7 +36,7 @@ Additional packages not in `packages.txt` but required by the config:
 ---
 
 ## 🛠️ System Configuration
-- **Compositor:** Niri (Scrollable-tiling).
+- **Compositor:** Niri (Scrollable-tiling). A Hyprland alternative is also configured at `~/.config/hypr/` — see `~/.config/hypr/SETUP.md`.
 - **Shell:** Noctalia (built with Quickshell).
 - **Terminal:** Ghostty (Set as `$TERMINAL` in `.zshrc`).
 - **Portals:** KDE XDG Desktop Portal (for file dialogs and dark mode compatibility), plus GNOME and GTK portals (required for screen casting/sharing in Niri).
@@ -52,8 +52,9 @@ Your setup uses a custom sync script to ensure consistent dark mode across all a
 ---
 
 ## 💾 Dotfiles & Backup
-Your configurations are symlinked to `/media/Vault/Dotfiles/` for easy backup:
+Your configurations are managed by chezmoi and symlinked to `/media/Vault/Dotfiles/` for easy backup:
 - **Niri:** `~/.config/niri` → `/media/Vault/Dotfiles/Niri`
+- **Hyprland:** `~/.config/hypr` → tracked in chezmoi (`ian/dotfiles`)
 - **Noctalia:** `~/.config/noctalia` → `/media/Vault/Dotfiles/Noctalia`
 
 ### Restoration (Fresh Install)

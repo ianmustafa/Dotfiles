@@ -35,8 +35,6 @@ widget_spacing = 4
 
 [calendar]
 enabled = true
-
-[control_center.calendar]
 event_time_format = "%H.%M"
 
 [[control_center.shortcuts]]
@@ -92,7 +90,7 @@ widget_order = [ "lockscreen-login-box" ]
     type = "login_box"
 
         [lockscreen_widgets.widget."lockscreen-login-box".settings]
-        background_color = "surface_variant"
+        background_color = "surface_container"
         background_opacity = 0.88
         background_radius = 12.0
         center_password_text = false
@@ -122,10 +120,6 @@ position_vertical = "bottom_center"
 
     [osd.kinds]
     media = false
-
-[plugin_settings."goatnath/spotify-lyrics"]
-lyrics-panel_open_near_click = true
-lyrics-panel_placement = "attached"
 
 [plugins]
 enabled = [
