@@ -1,0 +1,70 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "openagentic": {
+      "name": "OpenAgentic",
+      "options": {
+        "baseURL": "https://openagentic.id/api/v1"
+      },
+      "models": {
+        "claude-sonnet-4.6": {
+          "name": "Claude Sonnet 4.6"
+        },
+        "claude-opus-4.8": {
+          "name": "Claude Opus 4.8"
+        },
+        "claude-opus-5": {
+          "name": "Claude Opus 5"
+        },
+        "claude-sonnet-4.5": {
+          "name": "Claude Sonnet 4.5 (free)"
+        },
+        "glm-5.3-flash": {
+          "name": "GLM 5.3 Flash (free)"
+        },
+        "qwen3.8-flash-free": {
+          "name": "Qwen3.8 Flash (free)"
+        },
+        "gemini-3.8-flash-high": {
+          "name": "Gemini 3.8 Flash High"
+        },
+      }
+    },
+    "guts-ai": {
+      "name": "Guts AI",
+      "options": {
+        "baseURL": "https://api.gutsai.id/v1"
+      },
+      "models": {
+        "claude-haiku-4.5": {
+          "name": "Claude Haiku 4.5"
+        },
+        "claude-sonnet-5": {
+          "name": "Claude Sonnet 5"
+        },
+        "claude-sonnet-4.5": {
+          "name": "Claude Sonnet 4.5"
+        },
+        "claude-opus-5": {
+          "name": "Claude Opus 5"
+        },
+        "claude-opus-4.8": {
+          "name": "Claude Opus 4.8"
+        },
+        "claude-fable-5": {
+          "name": "Claude Fable 5"
+        },
+        "deepseek-v4-flash-0731": {
+          "name": "Deepseek v4 Flash 0731"
+        },
+        "deepseek-v4-pro-0813": {
+          "name": "Deepseek v4 Pro 0813"
+        },
+        "qwen3.8-max": {
+          "name": "Qwen3.8 Max"
+        },
+      }
+    },
+  },
+  "shell": "/usr/bin/zsh"
+}

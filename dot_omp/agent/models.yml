@@ -1,0 +1,13 @@
+providers:
+  openagentic:
+    baseUrl: https://openagentic.id/api/v1
+    api: openai-completions
+    apiKey: "OPENAG..._KEY"
+    discovery:
+      type: openai-models-list
+  griphub:
+    baseUrl: https://griphubrouter.web.id/v1
+    api: openai-completions
+    apiKey: "***"
+    discovery:
+      type: openai-models-list

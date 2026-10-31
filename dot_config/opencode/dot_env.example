@@ -1,0 +1,7 @@
+# OpenCode provider credentials
+OPENAGENTIC_API_KEY=
+GUTS_AI_API_KEY=
+GRIPHUB_API_KEY=
+
+# Optional password for an OpenCode server started with authentication enabled
+OPENCODE_SERVER_PASSWORD=

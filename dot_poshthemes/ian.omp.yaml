@@ -1,0 +1,154 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json
+
+version: 4
+final_space: true
+secondary_prompt:
+  # template: "\u25cf "
+  template: "\uf101 "
+  foreground: darkGray
+transient_prompt:
+  # template: "\u276f "
+  template: "\uf105 "
+  foreground: green
+  foreground_templates:
+    - "{{ if gt .Code 0 }}red{{ end }}"
+blocks:
+  # top left: OS, path and VC information
+  - type: prompt
+    alignment: left
+    overflow: hide
+    newline: true
+    segments:
+      - type: os
+        style: plain
+        template: "{{ .Icon }} "
+        foreground: white
+        options:
+          linux: "\uf385"
+      - type: session
+        style: plain
+        template: "{{ if .SSHSession }}{{ .UserName }}@{{ .HostName }}{{ end }}"
+        foreground: darkGray
+      - type: path
+        style: plain
+        template: " 󰝰 <b>{{ .Path }}</b> "
+        foreground: lightCyan
+        options:
+          style: powerlevel
+          max_width: 32
+      - type: git
+        style: diamond
+        leading_diamond: "\ue0b6"
+        trailing_diamond: "\ue0b4"
+        foreground: black
+        background: yellow
+        template: "{{ .UpstreamIcon }}"
+        options:
+          fetch_upstream_icon: true
+          upstream_icons:
+            gitea: "\uf339 "
+      - type: git
+        style: diamond
+        trailing_diamond: "\ue0b4"
+        foreground: black
+        background: lightYellow
+        template: " {{ .HEAD }}"
+        options:
+          branch_icon: "\uf418 "
+      - type: git
+        style: plain
+        foreground: lightMagenta
+        template: "{{ if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }} \uf044 {{ .Working.String }}{{ end }}{{ if and (.Staging.Changed) (.Working.Changed) }} |{{ end }}{{ if .Staging.Changed }} \uf046 {{ .Staging.String }}{{ end }}"
+        options:
+          fetch_status: true
+          branch_identical_icon: ""
+          rebase_icon: "\uf47f "
+          merge_icon: "\uf419 "
+          no_commits_icon: "󰂕 "
+
+  # top right: code languages
+  - type: prompt
+    alignment: right
+    overflow: hide
+    segments:
+      - type: bun
+        style: plain
+        template: " \ue76f <white>{{ .Full }}</>"
+        foreground: "#fbf0df"
+        options:
+          cache_duration: 2h
+          missing_command_text: "<yellow>\uf071</> Not installed"
+      - type: node
+        style: plain
+        # template: " 󰎙 <lightGreen>{{ .Full }}</>"
+        template: " \ue718 <lightGreen>{{ .Full }}</>"
+        foreground: "#5fa04e"
+        options:
+          cache_duration: 2h
+          missing_command_text: "<yellow>\uf071</> Not installed"
+      - type: go
+        style: plain
+        # template: " \ue65e <lightCyan>{{ .Full }}</>"
+        template: " \ue627 <lightCyan>{{ .Full }}</>"
+        foreground: "#00acd7"
+        options:
+          cache_duration: 2h
+          missing_command_text: "<yellow>\uf071</> Not installed"
+      - type: php
+        style: plain
+        template: " \ue608 <cyan>{{ .Full }}</>"
+        foreground: "#4f5a93"
+        options:
+          cache_duration: 2h
+          missing_command_text: "<yellow>\uf071</> Not installed"
+      - type: lua
+        style: plain
+        template: " \ue620 <blue>{{ .Full }}</>"
+        foreground: "#00007e"
+        options:
+          cache_duration: 2h
+          missing_command_text: "<yellow>\uf071</> Not installed"
+      - type: rust
+        style: plain
+        template: " \ue68b <darkGray>{{ .Full }}</>"
+        foreground: "white"
+        options:
+          cache_duration: 2h
+          missing_command_text: "<yellow>\uf071</> Not installed"
+
+  # bottom left: the actual prompt
+  - type: prompt
+    alignment: left
+    newline: true
+    segments:
+      - type: battery
+        style: plain
+        template: '{{ if not .Error }}{{ if and (eq .State.String "Discharging") (le .Percentage 15) }}󱃍{{ end }} {{ end }}'
+        foreground_templates:
+          - '{{ if and (eq .State.String "Discharging") (le .Percentage 15) }}red{{ end }}'
+        options:
+          display_error: false
+      - type: text
+        style: plain
+        # template: "\u276f"
+        template: "\uf105"
+        foreground: green
+        foreground_templates:
+          - "{{ if gt .Code 0 }}red{{ end }}"
+
+  # bottom right: execution time and error code if any
+  - type: rprompt
+    overflow: hide
+    segments:
+      - type: status
+        style: plain
+        template: "{{ if .Error }}<red>\uf421</red>  {{ .String }}{{ end }}"
+        foreground: lightRed
+        options:
+          status_template: "<b>{{ .Code }}</b>{{ if ne (print .Code) (reason .Code)}} {{ reason .Code }}{{ end }}"
+      - type: executiontime
+        style: plain
+        template: " <cyan>\uf520</> {{ .FormattedMs }}"
+        foreground: lightCyan
+        options:
+          style: round
