@@ -23,7 +23,7 @@ Use the profile that matches the machine you are setting up. Log out and back in
 On CachyOS or Arch Linux:
 
 ```bash
-sudo pacman -S --needed git chezmoi rbw zsh go fzf zoxide
+sudo pacman -Syu --needed git chezmoi rbw zsh go fzf zoxide
 paru -S --needed nodenv
 ```
 
@@ -31,7 +31,86 @@ Go, Nodenv, FZF, and Zoxide are mandatory workflow dependencies. `bootstrap.sh` 
 
 Install other applications from the configuration—such as Niri, Ghostty, Neovim, tmux, Docker, and Noctalia—according to the selected host profile.
 
-## 3. Prepare SSH and Vaultwarden access
+## 3. Install selected EndeavourOS applications
+
+These are the application packages retained from the old EndeavourOS notes.
+
+```bash
+sudo pacman -Syu --needed \
+  easyeffects lsp-plugins-lv2 calf reaper \
+  tmux entr \
+  libreoffice-fresh ttf-caladea ttf-carlito ttf-gentium \
+  ttf-linux-libertine-g adobe-source-sans-fonts adobe-source-serif-fonts \
+  direnv \
+  v4l2loopback-dkms obs-studio \
+  docker docker-compose \
+  steam
+```
+
+The old EndeavourOS notes referenced `game-devices-udev`; it is not a separate package in the current CachyOS repositories. The `steam` package provides the current Steam device integration.
+
+`v4l2loopback-dkms` is a kernel module package. Install the headers matching every kernel you intend to boot before installing it—for example, `linux-cachyos-headers` for the CachyOS kernel or `linux-cachyos-lts-headers` for its LTS kernel.
+
+### Docker
+
+Enable Docker and allow the current user to access the daemon without `sudo`:
+
+```bash
+sudo systemctl enable --now docker
+sudo usermod -aG docker "$USER"
+```
+
+The `docker` group grants root-equivalent privileges because it can control the Docker daemon. For stronger isolation, use Docker rootless mode instead of adding the user to this group. Log out and back in after changing group membership, or use `newgrp docker` for the current shell. Validate the managed Compose file with:
+
+```bash
+docker compose -f ~/Docker/compose.yaml config
+```
+
+### Tmux
+
+The Tmux configuration is managed at `~/.config/tmux/tmux.conf`. Install TPM once and then press `prefix + I` inside Tmux:
+
+```bash
+git clone https://github.com/tmux-plugins/tpm.git "$HOME/.tmux/plugins/tpm"
+```
+
+### Direnv
+
+The managed `~/.config/direnv/direnv.toml` enables dotenv loading. The Zsh configuration already loads the Direnv hook. Start a new shell after applying the dotfiles and verify with:
+
+```bash
+direnv version
+direnv status
+```
+
+Only run `direnv allow .` inside a trusted project after reviewing its `.envrc`; authorization permits that file to execute shell code.
+
+### Nodenv
+
+Install Nodenv through the configured AUR helper, then install the plugins from the old setup notes:
+
+```bash
+paru -S --needed nodenv
+mkdir -p "$(nodenv root)/plugins"
+git clone https://github.com/nodenv/node-build.git "$(nodenv root)/plugins/node-build"
+git clone https://github.com/nodenv/nodenv-update.git "$(nodenv root)/plugins/nodenv-update"
+git clone https://github.com/momo-lab/xxenv-latest.git "$(nodenv root)/plugins/nodenv-latest"
+```
+
+The managed Zsh configuration initializes Nodenv on the laptop profiles. Verify it in a new shell:
+
+```bash
+nodenv --version
+nodenv install -l | head
+```
+
+### EasyEffects, LibreOffice, OBS Studio, and Steam
+
+The packages above are sufficient for installation. EasyEffects uses PipeWire, and OBS Studio exposes its virtual-camera controls after the loopback module is available. Start OBS and use **Start Virtual Camera** when needed.
+
+Steam requires the `multilib` repository. Keep Vulkan installation hardware-specific: install the appropriate 64-bit and 32-bit Vulkan driver packages for the installed GPU rather than copying a driver command from another machine. CachyOS can then provide its preferred Steam compatibility and performance integration.
+
+## 4. Prepare SSH and Vaultwarden access
 
 The repository is private:
 
@@ -48,7 +127,7 @@ rbw login
 
 The bootstrap script unlocks `rbw` before applying encrypted Chezmoi files.
 
-## 4. Initialize and review Chezmoi
+## 5. Initialize and review Chezmoi
 
 ```bash
 chezmoi init --ssh git@git.kupu.dev:ian/dotfiles.git
@@ -73,7 +152,7 @@ For a dry run:
 chezmoi apply --dry-run --verbose
 ```
 
-## 5. Local secrets and environment files
+## 6. Local secrets and environment files
 
 The repository provides examples only:
 
@@ -92,7 +171,7 @@ chmod 600 ~/.omp/.env ~/.config/opencode/.env
 
 The real `.env` files, OpenCode `service.json`, and all API keys/passwords remain unmanaged.
 
-## 6. Neovim and terminal plugins
+## 7. Neovim and terminal plugins
 
 The Neovim lockfile is managed for reproducible plugin versions. After applying:
 
@@ -104,7 +183,7 @@ For intentional plugin updates, use `:Lazy update`, test Neovim, and review the 
 
 Install tmux plugins with `prefix + I`.
 
-## 7. Host-specific checks
+## 8. Host-specific checks
 
 Inspect the actual hardware and paths after applying the shared configuration.
 
@@ -129,7 +208,7 @@ chezmoi apply
 
 For desktop profiles, verify GPU settings, storage paths, external mounts, and Docker services before starting them. For laptop profiles, verify the internal display, power behavior, and optional hardware-specific startup programs.
 
-## 8. First-session checklist
+## 9. First-session checklist
 
 ```bash
 chsh -s /bin/zsh
@@ -147,7 +226,7 @@ Then start a new login session and verify:
 docker compose -f ~/Docker/compose.yaml config
 ```
 
-## 9. Updating an existing system
+## 10. Updating an existing system
 
 ```bash
 chezmoi update --no-tty
@@ -165,7 +244,7 @@ Do not run `chezmoi re-add` over the entire home directory. Exclude caches, data
 
 Noctalia themes are intentionally ignored because each device generates colors from its active wallpaper.
 
-## 10. Useful inspection commands
+## 11. Useful inspection commands
 
 ```bash
 chezmoi source-path
@@ -181,7 +260,7 @@ Replace `<hostname>` with the profile for the machine:
 
 ```bash
 sudo hostnamectl set-hostname <hostname>
-sudo pacman -S --needed git chezmoi rbw zsh go fzf zoxide
+sudo pacman -Syu --needed git chezmoi rbw zsh go fzf zoxide
 paru -S --needed nodenv
 ssh -T git@git.kupu.dev
 rbw config set base_url https://v.kupu.dev
