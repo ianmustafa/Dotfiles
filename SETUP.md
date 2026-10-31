@@ -47,8 +47,6 @@ sudo pacman -Syu --needed \
   steam
 ```
 
-The old EndeavourOS notes referenced `game-devices-udev`; it is not a separate package in the current CachyOS repositories. The `steam` package provides the current Steam device integration.
-
 `v4l2loopback-dkms` is a kernel module package. Install the headers matching every kernel you intend to boot before installing it—for example, `linux-cachyos-headers` for the CachyOS kernel or `linux-cachyos-lts-headers` for its LTS kernel.
 
 ### Docker
