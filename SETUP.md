@@ -4,13 +4,19 @@ This repository is managed with [chezmoi](https://www.chezmoi.io/).
 
 ## 1. Set the hostname
 
-Host-specific templates use the system hostname. For a new Omenian laptop:
+Host-specific templates use the system hostname. Set it before initializing Chezmoi:
 
 ```bash
-sudo hostnamectl set-hostname Omenian
+sudo hostnamectl set-hostname <hostname>
 ```
 
-Other supported profiles are `Archian` and `Thinkian`. Log out and back in, or reboot, after changing the hostname.
+Supported profiles currently include:
+
+- `Archian` — desktop/workstation profile
+- `Thinkian` — laptop profile
+- `Omenian` — laptop profile based on Thinkian
+
+Use the profile that matches the machine you are setting up. Log out and back in, or reboot, after changing the hostname.
 
 ## 2. Install bootstrap dependencies
 
@@ -22,6 +28,8 @@ paru -S --needed nodenv
 ```
 
 Go, Nodenv, FZF, and Zoxide are mandatory workflow dependencies. `bootstrap.sh` checks for them and stops if one is missing.
+
+Install other applications from the configuration—such as Niri, Ghostty, Neovim, tmux, Docker, and Noctalia—according to the selected host profile.
 
 ## 3. Prepare SSH and Vaultwarden access
 
@@ -96,22 +104,17 @@ For intentional plugin updates, use `:Lazy update`, test Neovim, and review the 
 
 Install tmux plugins with `prefix + I`.
 
-## 7. Omenian hardware check
+## 7. Host-specific checks
 
-The Omenian profile is based on Thinkian. After entering Niri, inspect the actual outputs:
+Inspect the actual hardware and paths after applying the shared configuration.
+
+For Niri, inspect the outputs with:
 
 ```bash
 niri msg outputs
 ```
 
-The initial template assumes:
-
-```text
-eDP-1
-1920x1080 @ 60.001 Hz
-```
-
-If that differs, update the Omenian branch in:
+If a host's display differs from its template, update the corresponding branch in:
 
 ```text
 ~/.local/share/chezmoi/dot_config/niri/cfg/display.kdl.tmpl
@@ -123,6 +126,8 @@ Then review and apply again:
 chezmoi diff
 chezmoi apply
 ```
+
+For desktop profiles, verify GPU settings, storage paths, external mounts, and Docker services before starting them. For laptop profiles, verify the internal display, power behavior, and optional hardware-specific startup programs.
 
 ## 8. First-session checklist
 
@@ -170,10 +175,12 @@ chezmoi unmanaged
 chezmoi diff
 ```
 
-## Quick start: Omenian
+## Quick start template
+
+Replace `<hostname>` with the profile for the machine:
 
 ```bash
-sudo hostnamectl set-hostname Omenian
+sudo hostnamectl set-hostname <hostname>
 sudo pacman -S --needed git chezmoi rbw zsh go fzf zoxide
 paru -S --needed nodenv
 ssh -T git@git.kupu.dev
@@ -196,8 +203,8 @@ git@git.kupu.dev:ian/dotfiles.git
 
 Before applying or committing:
 
-- confirm the hostname;
+- confirm the hostname and selected profile;
 - review `chezmoi diff`;
 - verify no secrets or runtime data are included;
-- check hardware-specific paths and displays;
+- check hardware-specific paths and display outputs;
 - validate Niri and Docker Compose configuration where applicable.
