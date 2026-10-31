@@ -1,0 +1,29 @@
+symbolPreset: nerd
+composer:
+  shape: rail
+theme:
+  dark: titanium
+  light: light
+setupVersion: 2
+modelRoles:
+  image: google-antigravity/gemini-3-pro-image
+  default: griphub/gpt-6-luna
+statusLine:
+  separator: powerline-thin
+  contextLine: annotated
+  sessionAccent: true
+  transparent: true
+terminal:
+  showProgress: true
+tui:
+  textSizing: false
+display:
+  hideToolActivity: false
+  showTokenUsage: true
+  showTurnTime: true
+defaultThinkingLevel: auto
+dev:
+  autoqaConsent: granted
+hideThinkingBlock: true
+browser:
+  relay: true

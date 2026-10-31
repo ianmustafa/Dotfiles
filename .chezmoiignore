@@ -34,7 +34,19 @@ Docker/build
 .config/opencode/themes/matugen.json
 
 # Oh My Pi runtime state and credentials
-.omp
+.omp/.env
+.omp/autoqa.db
+.omp/agent/agent.db*
+.omp/agent/blobs
+.omp/agent/sessions
+.omp/browser-relay
+.omp/cache
+.omp/gpu_cache.json
+.omp/install-id
+.omp/logs
+.omp/puppeteer
+.omp/run
+.omp/stats.db*
 
 # Zsh history
 .zsh_history
