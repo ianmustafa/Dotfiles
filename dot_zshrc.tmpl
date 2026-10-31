@@ -110,18 +110,18 @@ path_add "$(go env GOPATH)/bin" append
 # Node
 {{ if eq .chezmoi.hostname "Archian" -}}
 source /usr/share/nvm/init-nvm.sh
-{{- else if eq .chezmoi.hostname "Thinkian" -}}
+{{- else if or (eq .chezmoi.hostname "Thinkian") (eq .chezmoi.hostname "Omenian") -}}
 path_add "$HOME/.nodenv/bin"
 eval "$(nodenv init -)"
 FNM_PATH="$HOME/.local/share/fnm"
-if [ -d "$FNM_PATH" ]; then
+if command -v fnm >/dev/null 2>&1 && [ -d "$FNM_PATH" ]; then
   path_add "$FNM_PATH"
   eval "$(fnm env)"
 fi
 {{- end }}
 
-# Rust (Thinkian only)
-{{ if eq .chezmoi.hostname "Thinkian" -}}
+# Rust (laptops)
+{{ if or (eq .chezmoi.hostname "Thinkian") (eq .chezmoi.hostname "Omenian") -}}
 path_add "$HOME/.cargo/bin"
 [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
 {{- end }}
@@ -172,7 +172,9 @@ _fzf_comprun() {
 ####################################
 
 eval "$(zoxide init zsh --cmd cd)"
-eval "$(thefuck --alias)"
+if command -v thefuck >/dev/null 2>&1; then
+  eval "$(thefuck --alias)"
+fi
 
 ####################################
 # App completions & paths          #

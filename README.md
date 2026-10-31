@@ -54,6 +54,10 @@ both use **Noctalia** as the shell — all `noctalia msg` IPC is identical betwe
 
 `bootstrap.sh` handles first-run setup (symlinks, package installs). see comments inside for details.
 
+## Host-specific configuration
+
+Some templates vary by hostname. `Omenian` uses the laptop-oriented profile shared with `Thinkian`; verify display output settings on new hardware before applying them.
+
 ## Structure
 
 chezmoi source conventions used here:

@@ -8,6 +8,6 @@ spawn-sh-at-startup "while ! busctl --user status org.gnome.Mutter.ScreenCast >/
 spawn-at-startup "noctalia"
 spawn-at-startup "kwalletd6"
 spawn-at-startup "ssh-agent" "-D" "-a" "/run/user/1000/ssh-agent"
-{{ if eq .chezmoi.hostname "Thinkian" -}}
+{{ if or (eq .chezmoi.hostname "Thinkian") (eq .chezmoi.hostname "Omenian") -}}
 spawn-at-startup "/home/ian/.config/niri/zen-floater.sh"
 {{- end }}

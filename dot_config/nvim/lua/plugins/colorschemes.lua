@@ -4,12 +4,15 @@ return {
     lazy = false,
     priority = 1000,
     opts = {
-      transparent = true,
+      transparent = false,
       styles = {
         comments = "italic",
         keywords = "italic",
       },
     },
+    config = function(_, opts)
+      require("nightfox").setup(opts)
+    end,
   },
   -- {
   --   "olimorris/onedarkpro.nvim",
