@@ -9,7 +9,7 @@ input {
             layout "us" // Use the American keyboard layout
             options "ctrl:nocaps"
         }
-        numlock // Enable numlock on startup
+        {{ if eq .chezmoi.hostname "Omenian" }}// {{ end }}numlock // Enable numlock on startup
     }
 
     touchpad {

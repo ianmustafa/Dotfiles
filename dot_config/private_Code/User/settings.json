@@ -1,6 +1,9 @@
 {
   "editor.lineHeight": 24,
-  "editor.rulers": [80, 120],
+  "editor.rulers": [
+    80,
+    120
+  ],
   "editor.minimap.enabled": false,
   "editor.wordWrap": "wordWrapColumn",
   "editor.wordWrapColumn": 120,
@@ -14,7 +17,6 @@
     "*.vue": "vue",
     "*.postcss": "postcss"
   },
-  // "explorer.openEditors.visible": 0,
   "emmet.triggerExpansionOnTab": true,
   "emmet.includeLanguages": {
     "php": "html",
@@ -36,7 +38,6 @@
   "workbench.iconTheme": "vscode-icons",
   "workbench.statusBar.visible": true,
   "workbench.startupEditor": "newUntitledFile",
-
   "terminal.external.osxExec": "iTerm.app",
   "terminal.integrated.cursorBlinking": true,
   "window.openFilesInNewWindow": "on",
@@ -44,7 +45,9 @@
   "extensions.ignoreRecommendations": false,
   "php-cs-fixer.onsave": true,
   "php-cs-fixer.config": "/Users/ian/.php_cs",
-  "importCost.typescriptExtensions": ["\\.vue$"],
+  "importCost.typescriptExtensions": [
+    "\\.vue$"
+  ],
   "workbench.editor.enablePreviewFromQuickOpen": false,
   "sync.removeExtensions": true,
   "sync.syncExtensions": true,
@@ -62,7 +65,6 @@
   "php-docblocker.returnGap": true,
   "php-docblocker.qualifyClassNames": true,
   "workbench.editor.showTabs": "multiple",
-  "debug.console.fontSize": 13,
   "markdown-preview-enhanced.scrollSync": true,
   "codesnap.showWindowControls": false,
   "codesnap.transparentBackground": true,
@@ -109,7 +111,9 @@
     "editor.defaultFormatter": "Dart-Code.dart-code",
     "editor.formatOnSave": true,
     "editor.formatOnType": false,
-    "editor.rulers": [80],
+    "editor.rulers": [
+      80
+    ],
     "editor.selectionHighlight": false,
     "editor.suggest.snippetsPreventQuickSuggestions": false,
     "editor.suggestSelection": "first",
@@ -137,21 +141,6 @@
         }
       }
     ]
-    // "[Ayu Dark*]": {
-    //     "textMateRules": [
-    //         {
-    //             "scope": [
-    //                 "meta.object-literal.key",
-    //                 "variable.",
-    //                 "meta.parameter",
-    //                 "entity.other.attribute-name"
-    //             ],
-    //             "settings": {
-    //                 "foreground": "#e6b450b3"
-    //             }
-    //         }
-    //     ]
-    // }
   },
   "editor.tabSize": 2,
   "go.toolsManagement.autoUpdate": true,
@@ -200,7 +189,7 @@
       "serverUrl": "https://sonarqube.playcourt.id",
       "connectionId": "sonarqube-playcourt"
     }
-],
+  ],
   "sonarlint.connectedMode.project": {},
   "sonarlint.focusOnNewCode": false,
   "terminal.integrated.smoothScrolling": true,
@@ -241,7 +230,11 @@
   "vscord.status.state.enabled": false,
   "vscord.status.buttons.button1.git.idle.enabled": false,
   "vscord.status.buttons.button1.git.inactive.enabled": false,
-  "errorLens.enabledDiagnosticLevels": ["error", "warning", "info"],
+  "errorLens.enabledDiagnosticLevels": [
+    "error",
+    "warning",
+    "info"
+  ],
   "continue.enableTabAutocomplete": true,
   "vsicons.dontShowNewVersionMessage": true,
   "workbench.colorCustomizations": {
@@ -307,7 +300,6 @@
   ],
   "roo-cline.deniedCommands": [],
   "vite.autoStart": false,
-  "terminal.integrated.fontSize": 12,
   "editor.inlayHints.fontSize": 4,
   "kilo-code.allowedCommands": [
     "git log",
@@ -443,7 +435,7 @@
     "/^pnpm\\s+install\\s+--frozen-lockfile\\b/": true,
     "/^pnpm\\s+install\\s+--frozen-lockfile\\s+\\S/": false,
     "column": true,
-    "/^column\\b.*\\s-c\\s+[0-9]{4,}/": false,
+    "/^column\\b.*\\s-c\\s+[0-9]{4}/": false,
     "date": true,
     "/^date\\b.*\\s(-s|--set)\\b/": false,
     "find": true,
@@ -495,5 +487,9 @@
     "Invoke-Expression": false,
     "iex": false
   },
-  "chat.viewSessions.orientation": "stacked"
+  "chat.viewSessions.orientation": "stacked",
+  "scm.inputFontSize": 14,
+  "debug.console.fontSize": 13,
+  "terminal.integrated.fontSize": 13,
+  "chat.byokUtilityModelDefault": "mainAgent"
 }

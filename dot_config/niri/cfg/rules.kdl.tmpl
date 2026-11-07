@@ -49,15 +49,27 @@
     window-rule {
         match app-id="zen"
         draw-border-with-background false
+{{- if eq .chezmoi.hostname "Omenian" }}
+        // default-column-width { fixed 1523; }
+        default-column-width { proportion 0.9; }
+{{- else }}
         default-column-width { fixed 1523; }
+{{- end }}
     }
     window-rule {
         match app-id="zen" title="^Picture-in-Picture$"
 	      open-floating true
         geometry-corner-radius 4
         default-floating-position x=32 y=32 relative-to="bottom-right"
+{{- if eq .chezmoi.hostname "Omenian" }}
+	      // default-column-width { fixed 854; }
+	      // default-window-height { fixed 480; }
+	      default-column-width { fixed 640; }
+	      default-window-height { fixed 360; }
+{{- else }}
 	      default-column-width { fixed 854; }
 	      default-window-height { fixed 480; }
+{{- end }}
         min-width 640
         max-width 1280
         min-height 360
@@ -81,6 +93,13 @@
         match app-id="mpv"
         default-column-width { fixed 1820; }
     }
+{{- if eq .chezmoi.hostname "Omenian" }}
+    // Spotify
+    window-rule {
+        match app-id="Spotify"
+        default-column-width { proportion 0.8; }
+    }
+{{- end }}
 
     //--------- Floating window ---------
     // Dolphin Properties
@@ -112,6 +131,11 @@
         default-column-width { fixed 800; }
         default-window-height { fixed 960; }
     }
+    // Android Studio
+    window-rule {
+      match app-id="jetbrains-studio" title="Welcome to Android Studio"
+      open-floating true
+    }
     // Thunar: Rename
     window-rule {
         match app-id="Thunar" title="^Rename "
@@ -136,16 +160,16 @@
         default-window-height { fixed 640; }
     }
 
-    // ZapZap
-    window-rule {
-        match app-id="com.rtosta.zapzap"
-        default-column-width { fixed 1012; }
-    }
-    // Telegram Desktop
-    window-rule {
-        match app-id="org.telegram.desktop"
-        default-column-width { fixed 1012; }
-    }
+    // // ZapZap
+    // window-rule {
+    //     match app-id="com.rtosta.zapzap"
+    //     default-column-width { fixed 1012; }
+    // }
+    // // Telegram Desktop
+    // window-rule {
+    //     match app-id="org.telegram.desktop"
+    //     default-column-width { fixed 1012; }
+    // }
 
     // DBeaver splash
     window-rule {

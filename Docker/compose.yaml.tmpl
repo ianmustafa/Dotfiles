@@ -120,16 +120,30 @@ services:
 
   postgres:
     container_name: postgres
+{{- if eq .chezmoi.hostname "Archian" }}
     image: ghcr.io/kavist/postgres-ulid:17
-    {{ if or (eq .chezmoi.hostname "Thinkian") (eq .chezmoi.hostname "Omenian") }}shm_size: 512m{{ end }}
+{{- else }}
+    image: postgres:18-alpine
+{{- end }}
     restart: unless-stopped
     ports:
       - 5432:5432
     volumes:
-      - ./data/postgres:/var/lib/postgresql/17/docker
+      - ./data/postgres:/var/lib/postgresql/{{ if eq .chezmoi.hostname "Archian" }}17{{ else }}18{{ end }}/docker
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-
+{{ if ne .chezmoi.hostname "Archian" }}
+  postgis:
+    container_name: postgis
+    image: postgis/postgis:18-3.6
+    restart: unless-stopped
+    ports:
+      - 5433:5432
+    volumes:
+      - ./data/postgis:/var/lib/postgis
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+{{ end }}
   mongodb:
     container_name: mongodb
     image: mongo:8.0
@@ -145,7 +159,7 @@ services:
 
   redis:
     container_name: redis
-    image: redis:7.4-alpine
+    image: redis:{{ if eq .chezmoi.hostname "Archian" }}7.4-alpine{{ else }}8.10-alpine{{ end }}
     # user: 1000:1000
     restart: unless-stopped
     ports:
@@ -348,6 +362,23 @@ services:
       RUSTFS_CONSOLE_ENABLE: "true"
       RUSTFS_CORS_ALLOWED_ORIGINS: "*"
       RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS: "*"
+{{ else }}
+  rustfs:
+    container_name: rustfs
+    image: rustfs/rustfs:1.0.4
+    restart: unless-stopped
+    ports:
+      - 9900:9000
+      - 9901:9001
+    env_file:
+      - .env
+    volumes:
+      - ./data/rustfs:/data
+    environment:
+      - RUSTFS_CONSOLE_ENABLE=true
+      - RUSTFS_OBS_LOG_DIRECTORY=/logs
+      - RUSTFS_ACCESS_KEY=${RUSTFS_ACCESS_KEY}
+      - RUSTFS_SECRET_KEY=${RUSTFS_SECRET_KEY}
 {{ end }}
 
   adminer:

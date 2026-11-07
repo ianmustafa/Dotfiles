@@ -126,12 +126,21 @@ path_add "$HOME/.cargo/bin"
 [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
 {{- end }}
 
+# Java
+export JAVA_HOME="/usr/lib/jvm/java-17-openjdk"
+
 # Flutter / Android (shared config)
-export ANDROID_HOME="$HOME/Android"
-path_add "$HOME/.flutter/bin" append
-path_add "$HOME/fvm/bin" append
-path_add "$ANDROID_HOME/cmdline-tools/latest/bin" append
-path_add "$ANDROID_HOME/platform-tools" append
+export ANDROID_HOME="$HOME/Android/Sdk"
+# path_add "$HOME/.flutter/bin" append
+# path_add "$HOME/fvm/bin" append
+path_add "$ANDROID_HOME/cmdline-tools/latest/bin"
+path_add "$ANDROID_HOME/emulator"
+path_add "$ANDROID_HOME/platform-tools"
+
+# Bun
+export BUN_INSTALL="$HOME/.bun"
+path_add "$BUN_INSTALL/bin"
+[ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
 
 ####################################
 # FZF                              #
@@ -184,6 +193,7 @@ fi
 [ -f "$HOME/.openclaw/completions/openclaw.zsh" ] && source "$HOME/.openclaw/completions/openclaw.zsh"
 {{- end }}
 path_add "$HOME/.opencode/bin"
+path_add "$HOME/.local/bin"
 
 # Remove duplicate entries from $PATH (final pass)
 typeset -U path
